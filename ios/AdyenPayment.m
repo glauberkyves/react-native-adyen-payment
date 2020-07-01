@@ -5,4 +5,8 @@
 RCT_EXTERN_METHOD(startPayment:(NSString *)component componentData:(NSDictionary *)componentData paymentDetails:(NSDictionary *)paymentDetails)
 RCT_EXTERN_METHOD(initialize:(NSDictionary *)appServiceConfigData)
 RCT_EXTERN_METHOD(startPaymentPromise:(NSString *)component componentData:(NSDictionary *)componentData paymentDetails:(NSDictionary *)paymentDetails resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(encryptCard:(NSDictionary *)params
+                      resolver:(RCTPromiseResolveBlock)resolve
+                      rejecter:(RCTPromiseRejectBlock)reject
+                     )
 @end
