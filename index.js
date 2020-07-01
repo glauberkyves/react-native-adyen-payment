@@ -67,6 +67,9 @@ export default {
             throw new Error(`${component} is not supported for ${Platform.OS} Platform`);
         }
     },
+    encryptCard(cardInfo){
+        return AdyenPayment.encryptCard(cardInfo)
+    },
     /**
      * @callback mOnSuccess
      * @param {Object} message
