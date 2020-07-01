@@ -212,7 +212,7 @@ class AdyenPayment: RCTEventEmitter {
             
             let publicKey = cardInfo["publicKey"] as! String;
             
-            let encryptedCard = CardEncryptor.encryptedCard(for: card, publicKey: publicKey)
+            let encryptedCard = try! CardEncryptor.encryptedCard(for: card, publicKey: publicKey)
             
             resolve([
                 "number": encryptedCard.number,
