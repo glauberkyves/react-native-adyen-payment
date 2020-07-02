@@ -1,74 +1,52 @@
 package com.rnlib.adyen
 
 import android.app.Activity
-import android.content.Intent
 import android.content.Context
-
-import com.adyen.checkout.base.model.PaymentMethodsApiResponse
-import com.adyen.checkout.bcmc.BcmcConfiguration
-import com.adyen.checkout.card.CardConfiguration
-import com.adyen.checkout.googlepay.GooglePayConfiguration
-import com.adyen.checkout.core.exception.CheckoutException
-import com.adyen.checkout.core.log.LogUtil
-import com.adyen.checkout.core.log.Logger
-import com.adyen.checkout.dropin.DropIn
-import com.adyen.checkout.dropin.DropInConfiguration
-import com.adyen.checkout.core.api.Environment
-import com.adyen.checkout.base.model.payments.Amount
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ActivityEventListener
-import com.facebook.react.bridge.BaseActivityEventListener
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Callback
-import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.WritableArray
-import com.facebook.react.bridge.WritableMap
-import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.Promise
-
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
-import retrofit2.Response
-import retrofit2.Call
-import retrofit2.Retrofit
-import com.rnlib.adyen.CheckoutApiService
-import com.rnlib.adyen.ApiService
-import com.rnlib.adyen.PaymentData
-import com.rnlib.adyen.AppServiceConfigData
-import com.rnlib.adyen.PaymentMethodsRequest
-import com.rnlib.adyen.AdyenDropInService
-import com.rnlib.adyen.ReactNativeUtils
-import org.json.JSONObject
-import java.util.Locale
-
-import com.rnlib.adyen.AdyenComponent
-import com.rnlib.adyen.AdyenComponentConfiguration
-import com.adyen.checkout.base.model.paymentmethods.PaymentMethod
-import com.adyen.checkout.base.util.PaymentMethodTypes
-import com.adyen.checkout.entercash.EntercashConfiguration
-import com.adyen.checkout.eps.EPSConfiguration
-import com.adyen.checkout.ideal.IdealConfiguration
-import com.adyen.checkout.molpay.MolpayConfiguration
-import com.adyen.checkout.dotpay.DotpayConfiguration
-import com.adyen.checkout.openbanking.OpenBankingConfiguration
-import com.adyen.checkout.sepa.SepaConfiguration
-import com.adyen.checkout.wechatpay.WeChatPayConfiguration
-import com.adyen.checkout.afterpay.AfterPayConfiguration
-
-import com.google.android.gms.wallet.WalletConstants
-
-import com.rnlib.adyen.ui.LoadingDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import com.adyen.checkout.afterpay.AfterPayConfiguration
+import com.adyen.checkout.base.model.PaymentMethodsApiResponse
+import com.adyen.checkout.base.model.paymentmethods.PaymentMethod
+import com.adyen.checkout.base.model.payments.Amount
+import com.adyen.checkout.base.util.PaymentMethodTypes
+import com.adyen.checkout.bcmc.BcmcConfiguration
+import com.adyen.checkout.card.CardConfiguration
+import com.adyen.checkout.core.api.Environment
+import com.adyen.checkout.core.exception.CheckoutException
+import com.adyen.checkout.core.log.Logger
+import com.adyen.checkout.cse.Card
+import com.adyen.checkout.cse.EncryptionException
+import com.adyen.checkout.cse.Encryptor
+import com.adyen.checkout.dotpay.DotpayConfiguration
+import com.adyen.checkout.dropin.DropIn
+import com.adyen.checkout.entercash.EntercashConfiguration
+import com.adyen.checkout.eps.EPSConfiguration
+import com.adyen.checkout.googlepay.GooglePayConfiguration
+import com.adyen.checkout.ideal.IdealConfiguration
+import com.adyen.checkout.molpay.MolpayConfiguration
+import com.adyen.checkout.openbanking.OpenBankingConfiguration
+import com.adyen.checkout.sepa.SepaConfiguration
+import com.adyen.checkout.wechatpay.WeChatPayConfiguration
+import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.google.android.gms.wallet.WalletConstants
+import com.rnlib.adyen.AdyenComponentConfiguration
+import com.rnlib.adyen.ui.LoadingDialogFragment
+import okhttp3.ResponseBody
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Response
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
+import kotlin.collections.iterator
+import kotlin.collections.linkedMapOf
+import kotlin.collections.mutableListOf
 
 class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : ReactContextBaseJavaModule(reactContext),ActivityEventListener {
 
@@ -171,6 +149,26 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     fun startPayment(component : String,componentData : ReadableMap,paymentDetails : ReadableMap) {
         this.emitEvent = true
         this.showPayment(component,componentData,paymentDetails)
+    }
+    
+    @ReactMethod
+    fun encryptCard(cardInfo: ReadableMap, promise: Promise) {
+        val card = Card.Builder()
+        card.setNumber(cardInfo.getString("number"))
+        card.setExpiryDate(cardInfo.getInt("expiryMonth"), cardInfo.getInt("expiryYear"))
+        card.setSecurityCode(cardInfo.getString("cvc"))
+        try {
+            val encryptedCard = Encryptor.INSTANCE.encryptFields(card.build(), cardInfo.getString("publicKey")!!)
+            val map = Arguments.createMap()
+            map.putString("number", encryptedCard.encryptedNumber)
+            map.putString("expiryMonth", encryptedCard.encryptedExpiryMonth)
+            map.putString("expiryYear", encryptedCard.encryptedExpiryYear)
+            map.putString("cvc", encryptedCard.encryptedSecurityCode)
+            promise.resolve(map)
+        } catch (e: EncryptionException) {
+            // e.printStackTrace();
+            promise.reject(Integer.toString(e.hashCode()), e.message)
+        }
     }
 
     fun showPayment(component : String,componentData : ReadableMap,paymentDetails : ReadableMap) {
