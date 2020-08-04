@@ -1,5 +1,6 @@
 package com.rnlib.adyen
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -77,12 +78,13 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest.writeMap(availableConfigs)
+        dest.writeMap(availableConfigs as Map<*, *>?)
         dest.writeParcelable(serviceComponentName, flags)
         dest.writeParcelable(resultHandlerIntent, flags)
         JsonUtils.writeToParcel(dest, Amount.SERIALIZER.serialize(amount))
     }
 
+    @SuppressLint("WrongConstant")
     override fun describeContents(): Int {
         return ParcelUtils.NO_FILE_DESCRIPTOR
     }
