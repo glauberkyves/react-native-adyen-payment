@@ -17,7 +17,6 @@ internal struct PaymentsData {
     static var shopperReference: String = ""
     static var shopperEmail: String = ""
     static var merchantAccount : String = ""
-    static var merchantName : String = ""
     static var additionalData : [String : Any] = ["allow3DS2": true,"executeThreeD":true]
 }
 
@@ -44,7 +43,6 @@ internal struct PaymentsRequest: Request {
         try container.encode("iOS", forKey: .channel)
         try container.encode(amount, forKey: .amount)
         try container.encode(PaymentsData.reference, forKey: .reference)
-        try container.encode(PaymentsData.merchantName, forKey: .merchantName)
         try container.encode(PaymentsData.countryCode, forKey: .countryCode)
         try container.encode(PaymentsData.returnUrl, forKey: .returnUrl)
         try container.encode(PaymentsData.shopperReference, forKey: .shopperReference)
@@ -66,7 +64,6 @@ internal struct PaymentsRequest: Request {
         case shopperLocale
         case additionalData
         case merchantAccount
-        case merchantName
     }
 
 }

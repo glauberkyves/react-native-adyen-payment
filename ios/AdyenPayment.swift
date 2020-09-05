@@ -54,7 +54,6 @@ class AdyenPayment: RCTEventEmitter {
         PaymentsData.shopperReference = paymentDetails["shopperReference"] as! String
         PaymentsData.shopperEmail = paymentDetails["shopperEmail"] as! String
         PaymentsData.shopperLocale = paymentDetails["shopperLocale"] as! String
-        PaymentsData.merchantName = paymentDetails["merchantName"] as! String
         PaymentsData.merchantAccount = paymentDetails["merchantAccount"] as! String
         if(additionalData != nil){
             let allow3DS2 : Bool = (additionalData?["allow3DS2"] != nil) ? additionalData?["allow3DS2"] as! Bool : false
@@ -149,14 +148,7 @@ class AdyenPayment: RCTEventEmitter {
             guard appleComponent["apple_pay_merchant_id"] != nil else {return}
             do{
                 let amt = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.amount.value) / 100))
-
-                var totalName = "Total";
-
-                if(PaymentsData.merchantName != ""){
-                    totalName = PaymentsData.merchantName
-                }
-
-                let applePaySummaryItems = [PKPaymentSummaryItem(label: totalName, amount: amt, type: .final)]
+                let applePaySummaryItems = [PKPaymentSummaryItem(label: "Total", amount: amt, type: .final)]
                 let component = try ApplePayComponent(paymentMethod: paymentMethod,payment:Payment(amount: PaymentsData.amount, countryCode: PaymentsData.countryCode),merchantIdentifier: appleComponent["apple_pay_merchant_id"] as! String,summaryItems: applePaySummaryItems)
                 component.delegate = self
                 self.present(component)
