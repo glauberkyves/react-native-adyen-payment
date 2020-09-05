@@ -17,32 +17,34 @@ internal struct PaymentsData {
     static var shopperReference: String = ""
     static var shopperEmail: String = ""
     static var merchantAccount : String = ""
+    static var merchantName : String = ""
     static var additionalData : [String : Any] = ["allow3DS2": true,"executeThreeD":true]
 }
 
 internal struct PaymentsRequest: Request {
-    
+
     internal typealias ResponseType = PaymentsResponse
-    
+
     internal let path = "payments"
-    
+
     internal let data: PaymentComponentData
-    
+
     //internal let paymentData : NSDictionary
-    
+
     internal func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         let amount: [String: Any] = [
             "currency": PaymentsData.amount.currencyCode,
             "value": PaymentsData.amount.value
         ]
-        
+
         try container.encode(data.paymentMethod.dictionaryRepresentation, forKey: .details)
         try container.encode(data.storePaymentMethod, forKey: .storePaymentMethod)
         try container.encode("iOS", forKey: .channel)
         try container.encode(amount, forKey: .amount)
         try container.encode(PaymentsData.reference, forKey: .reference)
+        try container.encode(PaymentsData.merchantName, forKey: .merchantName)
         try container.encode(PaymentsData.countryCode, forKey: .countryCode)
         try container.encode(PaymentsData.returnUrl, forKey: .returnUrl)
         try container.encode(PaymentsData.shopperReference, forKey: .shopperReference)
@@ -50,7 +52,7 @@ internal struct PaymentsRequest: Request {
         try container.encode(PaymentsData.shopperLocale, forKey: .shopperLocale)
         try container.encode(PaymentsData.additionalData, forKey: .additionalData)
     }
-    
+
     private enum CodingKeys: String, CodingKey {
         case details = "paymentMethod"
         case storePaymentMethod
@@ -64,16 +66,17 @@ internal struct PaymentsRequest: Request {
         case shopperLocale
         case additionalData
         case merchantAccount
+        case merchantName
     }
-    
+
 }
 
 internal struct PaymentsResponse: Response {
-    
+
     internal let resultCode: ResultCode?
-    
+
     internal let action: Action?
-    
+
     internal let pspReference : String?
     internal let additionalData : [String:Any]?
     internal let merchantReference: String?
@@ -95,7 +98,7 @@ internal struct PaymentsResponse: Response {
             self.errorMessage = errorMessage
         }
     }
-    
+
     internal init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.resultCode = try container.decodeIfPresent(ResultCode.self, forKey: .resultCode)
@@ -113,7 +116,7 @@ internal struct PaymentsResponse: Response {
             self.validationError = ValidationError(type:self.type,errorCode:self.errorCode,errorMessage:self.errorMessage)
         }
     }
-    
+
     internal func decode_error_code(_ refusalCode : String?) -> String?{
         if(refusalCode != nil){
             switch refusalCode {
@@ -156,7 +159,7 @@ internal struct PaymentsResponse: Response {
         }
         return nil
     }
-    
+
     private enum CodingKeys: String, CodingKey {
         case resultCode
         case action
@@ -169,11 +172,11 @@ internal struct PaymentsResponse: Response {
         case errorMessage
         case errorCode
     }
-    
+
 }
 
 internal extension PaymentsResponse {
-    
+
     // swiftlint:disable:next explicit_acl
     enum ResultCode: String, Decodable {
         case authorised = "Authorised"
@@ -186,7 +189,7 @@ internal extension PaymentsResponse {
         case identifyShopper = "IdentifyShopper"
         case challengeShopper = "ChallengeShopper"
     }
-    
-    
-    
+
+
+
 }
