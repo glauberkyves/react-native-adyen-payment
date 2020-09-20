@@ -18,6 +18,7 @@ internal struct PaymentsData {
     static var shopperEmail: String = ""
     static var merchantAccount : String = ""
     static var additionalData : [String : Any] = ["allow3DS2": true,"executeThreeD":true]
+    static var metadata : [String : Any] = ["ordem": 0, "transacao": 0, "detalhes": "", "valor": 0]
 }
 
 internal struct PaymentsRequest: Request {
@@ -49,6 +50,7 @@ internal struct PaymentsRequest: Request {
         try container.encode(PaymentsData.shopperEmail, forKey: .shopperEmail)
         try container.encode(PaymentsData.shopperLocale, forKey: .shopperLocale)
         try container.encode(PaymentsData.additionalData, forKey: .additionalData)
+        try container.encode(PaymentsData.metadata, forKey: .metadata)
         try container.encode(PaymentsData.merchantAccount, forKey: .merchantAccount)
     }
 
@@ -64,6 +66,7 @@ internal struct PaymentsRequest: Request {
         case shopperEmail
         case shopperLocale
         case additionalData
+        case metadata
         case merchantAccount
     }
 
