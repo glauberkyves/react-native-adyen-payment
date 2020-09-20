@@ -7,6 +7,8 @@ internal struct AppServiceConfigData {
     static var card_public_key : String = ""
     static var applePayMerchantIdentifier : String = ""
     static var environment : String = "test"
+    static var username: String = ""
+    static var password: String = ""
 }
 
 internal final class APIClient {
@@ -24,6 +26,7 @@ internal final class APIClient {
             return
         }
         
+        print(" ---- URL \(url) ----")
         print(" ---- Request (/\(request.path)) ----")
         printAsJSON(body)
         
@@ -31,7 +34,18 @@ internal final class APIClient {
         urlRequest.httpMethod = "POST"
         urlRequest.httpBody = body
         
-        var url_headers = ["Content-Type": "application/json"]
+        let credential = URLCredential(user: AppServiceConfigData.username, password: AppServiceConfigData.password, persistence: URLCredential.Persistence.forSession)
+        let protectionSpace = URLProtectionSpace(host: AppServiceConfigData.base_url, port: 443, protocol: "https", realm: "Restricted", authenticationMethod: NSURLAuthenticationMethodHTTPBasic)
+        URLCredentialStorage.shared.setDefaultCredential(credential, for: protectionSpace)
+
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config)
+        
+        var url_headers = [
+            "Content-Type": "application/json",
+            "User-Agent": "R2 Produções adyen-php-api-library/7.1.0",
+        ]
+        
         if(!AppServiceConfigData.app_url_headers.isEmpty){
             for (key, value) in AppServiceConfigData.app_url_headers {
                 url_headers[key] = value as String
@@ -41,7 +55,7 @@ internal final class APIClient {
         
         requestCounter += 1
         
-        urlSession.dataTask(with: urlRequest) { result in
+        session.dataTask(with: urlRequest) { result in
             switch result {
             case let .success(data):
                 print(" ---- Response (/\(request.path)) ----")
@@ -64,17 +78,12 @@ internal final class APIClient {
         }.resume()
     }
     
-    private lazy var urlSession: URLSession = {
-        URLSession(configuration: .default, delegate: nil, delegateQueue: .main)
-    }()
-    
     private var requestCounter = 0 {
         didSet {
             let application = UIApplication.shared
             application.isNetworkActivityIndicatorVisible = self.requestCounter > 0
         }
     }
-    
 }
 
 private func printAsJSON(_ data: Data) {
@@ -82,7 +91,7 @@ private func printAsJSON(_ data: Data) {
         let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
         let jsonData = try JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted])
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        
+
         print(jsonString)
     } catch {
         if let string = String(data: data, encoding: .utf8) {

@@ -70,6 +70,8 @@ class AdyenPayment: RCTEventEmitter {
            AppServiceConfigData.app_url_headers = appServiceConfigData["additional_http_headers"] as! [String:String]
         }
         AppServiceConfigData.environment = appServiceConfigData["environment"] as! String
+        AppServiceConfigData.username = appServiceConfigData["username"] as! String
+        AppServiceConfigData.password = appServiceConfigData["password"] as! String
     }
 
     func storedPaymentMethod<T: StoredPaymentMethod>(ofType type: T.Type) -> T? {
