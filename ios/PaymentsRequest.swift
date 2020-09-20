@@ -49,6 +49,7 @@ internal struct PaymentsRequest: Request {
         try container.encode(PaymentsData.shopperEmail, forKey: .shopperEmail)
         try container.encode(PaymentsData.shopperLocale, forKey: .shopperLocale)
         try container.encode(PaymentsData.additionalData, forKey: .additionalData)
+        try container.encode(PaymentsData.merchantAccount, forKey: .merchantAccount)
     }
 
     private enum CodingKeys: String, CodingKey {
