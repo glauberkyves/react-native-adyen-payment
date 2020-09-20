@@ -48,7 +48,7 @@ class AdyenPayment: RCTEventEmitter {
         let amount = paymentDetails["amount"] as! [String : Any]
         let additionalData = paymentDetails["additionalData"] as? [String : Any]
         let metadata = paymentDetails["metadata"] as? [String : Any]
-        
+
         PaymentsData.amount = Payment.Amount(value: amount["value"] as! Int, currencyCode: amount["currency"] as! String)
         PaymentsData.reference = paymentDetails["reference"] as! String
         PaymentsData.countryCode = paymentDetails["countryCode"] as! String
@@ -62,12 +62,13 @@ class AdyenPayment: RCTEventEmitter {
             let executeThreeD : Bool = (additionalData?["executeThreeD"] != nil) ? additionalData?["executeThreeD"] as! Bool : false
             PaymentsData.additionalData = ["allow3DS2":  allow3DS2,"executeThreeD":executeThreeD]
         }
-        
+
         if(metadata != nil){
             let ordem : Int = (metadata?["ordem"] != nil) ? metadata?["ordem"] as! Int : 0
             let transacao : Int = (metadata?["transacao"] != nil) ? metadata?["transacao"] as! Int : 0
             let detalhes : String = (metadata?["detalhes"] != nil) ? metadata?["detalhes"] as! String : ""
-            let valor : Int = (metadata?["valor"] != nil) ? metadata?["valor"] as! Int : 0
+            let valor : Double = (metadata?["valor"] != nil) ? (metadata?["valor"] as! NSString).doubleValue : 0.0
+
             PaymentsData.metadata = ["ordem": ordem, "transacao": transacao, "detalhes": detalhes, "valor": valor]
         }
         /*PaymentsData.cardComponent =  (paymentDetails["cardComponent"] != nil) ? paymentDetails["cardComponent"] as! [String : Any] : [String : Any]()*/

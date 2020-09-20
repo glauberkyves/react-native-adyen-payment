@@ -18,7 +18,7 @@ internal struct PaymentsData {
     static var shopperEmail: String = ""
     static var merchantAccount : String = ""
     static var additionalData : [String : Any] = ["allow3DS2": true,"executeThreeD":true]
-    static var metadata : [String : Any] = ["ordem": 0, "transacao": 0, "detalhes": "", "valor": 0]
+    static var metadata : [String : Any] = ["ordem": 0, "transacao": 0, "detalhes": "", "valor": 0.0]
 }
 
 internal struct PaymentsRequest: Request {
