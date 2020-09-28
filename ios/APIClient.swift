@@ -1,6 +1,7 @@
 import Adyen
 import Foundation
 
+
 internal struct AppServiceConfigData {
     static var base_url : String = ""
     static var app_url_headers : [String:String] = [:]

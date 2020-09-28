@@ -44,6 +44,7 @@ class AdyenPayment: RCTEventEmitter {
         }
     }
 
+    
     func setPaymentDetails(_ paymentDetails : NSDictionary){
         let amount = paymentDetails["amount"] as! [String : Any]
         let additionalData = paymentDetails["additionalData"] as? [String : Any]
